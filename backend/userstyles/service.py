@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from userstyles import repository
-from userstyles.usertyle import Userstyle
+from userstyles.userstyle import Userstyle
 from userstyles.schemas import UserstyleUpdate
 from users.user import User
 
