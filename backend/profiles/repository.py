@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optianal
 
 if TYPE_CHECKING:
     from profiles.profile import Profile
@@ -13,7 +13,7 @@ from profiles.schemas import ProfileUpdate
 async def get_profile_by_id(
     session: AsyncSession,
     profile_id: int
-):
+) -> Optional[Profile]:
     return await session.get(Profile, profile_id)
 
 
