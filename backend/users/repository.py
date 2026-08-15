@@ -1,9 +1,11 @@
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from models import User
-from schemas import UserCreate, UserUpdate
+from users.user import User
+from users.schemas import UserCreate, UserUpdate
+from auth.utils import hash_password
 
 
 async def get_users(
@@ -26,10 +28,12 @@ async def get_user_by_username(
     session: AsyncSession,
     username: str
 ) -> Optianal[User]:
-    stmt = select(User).where(
-        User.username == username
+    stmt = (
+        select(User)
+        .where(User.username == username)
     )
-    user = await session.execute(stmt)
+    result: Result = await session.execute(stmt)
+    user = result.scalars().first()
     return user
 
 
@@ -37,7 +41,11 @@ async def create_user(
     session: AsyncSession,
     user_in: UserCreate
 ) -> User: 
-    user = User(**user_in.model_dump())
+    password_hash = hash_password(user_in.password)
+    user = User(
+        username=user_in.username,
+        password_hash=password_hash
+    )
     session.add(user)
     await session.commit()
     return user
@@ -48,14 +56,15 @@ async def update_user(
     user: User,
     user_update: UserUpdate
 ) -> User:
-    for name, value in user_update.model_dump().items():
+    for name, value in user_update.model_dump(exclude_unset=partial).items():
         setattr(user, name, value)
     await session.commit()
+    return user
 
 
 async def delete_user(
     session: AsyncSession,
-    user_in: User
+    user: User
 ) -> None:
-    await session.delete(user_in)
+    await session.delete(user)
     await session.commit()

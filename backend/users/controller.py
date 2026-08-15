@@ -1,62 +1,82 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from infrastructure.db.db_helper import db_helper
-from models import User
-from dependencies import get_user_by_id, check_existing_user_by_username
-from schemas import UserUpdate
+from auth.dependencies.get_current_user import get_current_user
+from users.user import User
+from users.schemas import UserCreate, UserUpdate, UserRead
 
-import repository
+from users import service
+
 
 router = APIRouter()
 
 
-@router.get("/", response_model=list[User])
+@router.get("/", response_model=list[UserRead])
 async def get_users(
-    session: AsyncSession = Depends(db_helper.session_dependency())
+    session: AsyncSession = Depends(db_helper.get_scopped_session)
 ):
-    return await repository.get_users(session=session)
+    return await service.get_users(
+        session=session
+    )
 
 
-@router.post("/register/", response_model=User, status_code=status.HTTP_201_CREATED)
+@router.post("/register/", response_model=UserRead, status_code=status.HTTP_201_CREATED)
 async def create_user(
     user_in: UserCreate,
-    session: AsyncSession = Depends(db_helper.session_dependency)
+    session: AsyncSession = Depends(db_helper.get_scopped_session)
 ):
-    await check_existing_user_by_username(
-        session=session,
-        username=username
-    )
-
-    return await repository.create_user(
-        session=session,
-        user_in=user_in
+    return await service.create_user(
+        user_in=user_in,
+        session=session
     )
 
 
-@router.get("/{user_id}/", response_model=User)
+@router.get("/{user_id}/", response_model=UserRead)
 async def get_user(
-    user: User = Depends(get_user_by_id)
+    session: AsyncSession = Depends(db_helper.get_scopped_session)
 ):
-    return user
+    return await service.get_user(
+        session=session,
+        user_id=user_id
+    )   
 
 
-@router.put("/{user_id}/", response_model=User)
+@router.patch("/", response_model=UserRead)
 async def update_user(
     user_update: UserUpdate,
-    user: User = Depends(get_user_by_id),
-    session: AsyncSession = Depends(db_helper.session_dependency)
-): 
-    return await repository.update_user(
-        session=session,
-        user=user,
-        user_update=user_update
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(db_helper.get_scopped_session)
+):
+    return await service.update_user(
+        user_update=user_update,
+        user=current_user,
+        session=session
     )
 
 
-@router.delete("/{user_id}/", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_user(
-    user: User = Depends(get_user_by_id)
+@router.patch("/change_password/", status_code=status.HTTP_202_ACCEPTED)
+async def change_password(
+    old_password: str,
+    new_password: str,
+    user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(db_helper.get_scopped_session)
 ):
-    await repository.delete_user(user_in=user)
+    await service.change_password(
+        old_password=old_password,
+        new_password=new_password,
+        user=user,
+        session=session
+    )
+
+
+@router.delete("/", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_user(
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(db_helper.get_scopped_session)
+):
+    await service.delete_user(
+        user=current_user,
+        session=session
+    )

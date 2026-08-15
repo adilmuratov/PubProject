@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from posts.post import Post
@@ -57,4 +57,12 @@ async def delete_post(
     post: Post
 ) -> None:
     await session.delete(post)
+    await session.commit()
+
+
+async def delete_all_posts_of_user(
+    session: AsyncSession,
+    user: User
+) -> None:
+    await session.delete(Post).where(Post.user == user)
     await session.commit()

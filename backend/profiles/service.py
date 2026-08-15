@@ -14,10 +14,14 @@ from profiles.schemas import ProfileUpdate
 async def get_profile_by_id(
     session: AsyncSession,
     profile_id: int
-) -> Profile:
-    return await repository.get_profile_by_id(
+) -> ProfileRead:
+    profile = await repository.get_profile_by_id(
         session=session,
         profile_id=profile_id
+    )
+
+    return ProfileRead(
+        description=profile.description
     )
 
 
@@ -25,11 +29,15 @@ async def update_profile(
     session: AsyncSession,
     user: User,
     profile_update: ProfileUpdate
-) -> Profile:
-    profile = user.profile
+) -> ProfileRead:
+    user_profile = user.profile
 
-    return await repository.update_profile(
+    profile = await repository.update_profile(
         session=session,
-        profile=profile,
+        profile=user_profile,
         profile_update=profile_update
+    )
+
+    return ProfileRead(
+        description=profile.description
     )

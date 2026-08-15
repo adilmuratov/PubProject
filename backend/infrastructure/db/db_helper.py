@@ -30,6 +30,7 @@ class DataBaseHelper:
             session_factory=self.session_factory,
             scopefunc=current_task
         )
+        return session
 
     async def session_dependency(self) -> AsyncSession:
         session = self.get_scopped_session()

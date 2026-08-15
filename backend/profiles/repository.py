@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optianal
+from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from profiles.profile import Profile

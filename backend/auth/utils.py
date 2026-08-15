@@ -9,7 +9,7 @@ def encode_jwt(
     payload,
     private_key: str = settings.auth_jwt.private_key_path.read_text(),
     algorithm: str = settings.auth_jwt.algorithm,
-    expire_minutes: int = settings.auth_jwt.access_token_expires_minutes,
+    expire_minutes: int = settings.auth_jwt.acces_token_expires_minutes,
     expire_timedelta: timedelta | None = None
 ):
     to_encode = payload.copy()
@@ -49,6 +49,7 @@ def hash_password(
     salt = bcrypt.gensalt()
     pwd_bytes: bytes = password.encode()
     return bcrypt.hashpw(pwd_bytes, salt)
+
 
 def validate_password(
     password: str,

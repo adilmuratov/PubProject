@@ -6,7 +6,7 @@ from fastapi import (
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from infrastructure.db.db_helper import db_helper
-from userstyles.schemas import UserstyleRead
+from userstyles.schemas import UserstyleRead, UserstyleUpdate
 from users.user import User
 from auth.dependencies.get_current_user import get_current_user
 

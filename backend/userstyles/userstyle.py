@@ -20,7 +20,7 @@ class Userstyle(Base):
     background_color: Mapped[str]
 
     user_id: Mapped[int] = mapped_column(
-        ForeignKey("user.id"),
+        ForeignKey("users.id"),
         unique=True
     )
 

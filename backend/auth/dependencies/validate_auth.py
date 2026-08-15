@@ -6,6 +6,7 @@ from fastapi import (
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from infrastructure.db.db_helper import db_helper
+from auth import utils as auth_utils
 from users import repository 
 
 
@@ -29,7 +30,7 @@ async def validate_auth_user(
 
     if not auth_utils.validate_password(
         password=password,
-        hashed_password=user.password
+        hashed_password=user.password_hash
     ):
         raise unauthed_exc
 

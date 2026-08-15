@@ -11,8 +11,8 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from infrastructure.db.db_helper import db_helper
-from schemas import UserData
-import utils as auth_utils
+from auth.schemas import UserData
+from auth import utils as auth_utils
 from users import repository
 
 
@@ -35,7 +35,7 @@ def get_current_token_payload(
     return payload
 
 
-async def get_current_active_auth(
+async def get_current_user(
     session: AsyncSession = Depends(db_helper.session_dependency),
     payload: dict = Depends(get_current_token_payload)
 ) -> UserData:

@@ -4,13 +4,13 @@ from fastapi import Path, APIRouter, HTTPException, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from infrastructure.db.db_helper import db_helper
-from schemas import User
-import repository
+from users.user import User
+from users import repository
 
 
 async def get_user_by_id(
-    user_id: Annotated[int, Path],
-    session: AsyncSession = Depends(db_helper.session_dependency())
+    user_id: int,
+    session: AsyncSession
 ) -> User:
     user = await repository.get_user_by_id(
         session=session, 
